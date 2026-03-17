@@ -9,7 +9,7 @@ enum State { IDLE, WALK, JUMP, FALL, DEAD }
 
 @export_category("Player Properties")
 @export var move_speed: float = 400
-@export var jump_force: float = 600
+@export var jump_force: float = 800
 @export var gravity: float = 30
 @export var fall_gravity_multiplier: float = 1.8  # Extra gravity while falling
 @export var max_jump_count: int = 2
@@ -136,7 +136,7 @@ func enter_state(state: State) -> void:
 			if not is_coyote_jump:  # Coyote jumps are free — don't cost a count
 				jump_count -= 1
 			is_coyote_jump = false
-			jump_tween()
+			#jump_tween()
 			AudioManager.jump_sfx.play()
 		State.FALL:
 			particle_trails.emitting = false
@@ -151,10 +151,10 @@ func exit_state(from: State, to: State) -> void:
 			# Only start coyote window when falling off an edge, not when jumping
 			if to == State.FALL:
 				coyote_timer = coyote_time
-		State.FALL:
-			# Landing squash only when actually touching down, not on a double jump
-			if is_on_floor():
-				land_tween()
+		#State.FALL:
+			## Landing squash only when actually touching down, not on a double jump
+			#if is_on_floor():
+				#land_tween()
 
 func update_state() -> void:
 	var input_x := Input.get_axis("Left", "Right")
@@ -194,7 +194,7 @@ func death_tween() -> void:
 	global_position = spawn_point.global_position
 	await get_tree().create_timer(0.3).timeout
 	AudioManager.respawn_sfx.play()
-	respawn_tween()
+	#respawn_tween()
 
 func respawn_tween() -> void:
 	var tween := create_tween()
@@ -219,4 +219,4 @@ func _on_collision_body_entered(_body: Node2D) -> void:
 		AudioManager.death_sfx.play()
 		death_particles.emitting = true
 		transition_to(State.DEAD)
-		death_tween()
+		#death_tween()
