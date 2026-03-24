@@ -377,15 +377,15 @@ animations = [{
 }],
 "loop": true,
 "name": &"Walk",
-"speed": 13.333
+"speed": 20.0
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_n4sts"]
-radius = 27.0
-height = 66.0
+radius = 15.0
+height = 48.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tvbjh"]
-size = Vector2(58, 69)
+size = Vector2(44, 50.5)
 
 [sub_resource type="Curve" id="Curve_m2jh0"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.246032, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -397,24 +397,26 @@ colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
 
 [node name="Player" type="CharacterBody2D" groups=["Player"]]
 script = ExtResource("1_qt7d6")
+sprite_flip_offset = 50.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(-2, -3)
 scale = Vector2(0.128, 0.128)
 sprite_frames = SubResource("SpriteFrames_4nss6")
 animation = &"Idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 15)
+position = Vector2(18, 16)
 shape = SubResource("CapsuleShape2D_n4sts")
 
 [node name="Collision" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision"]
-position = Vector2(0, 14.5)
+position = Vector2(15, 18.25)
 shape = SubResource("RectangleShape2D_tvbjh")
 
 [node name="ParticleTrails" type="CPUParticles2D" parent="."]
-position = Vector2(0, 42)
+position = Vector2(13, 40)
 emitting = false
 amount = 20
 texture = ExtResource("3_8vxmb")
@@ -432,7 +434,7 @@ scale_amount_curve = SubResource("Curve_m2jh0")
 color_ramp = SubResource("Gradient_3gc37")
 
 [node name="DeathParticles" type="CPUParticles2D" parent="."]
-position = Vector2(-1, 15)
+position = Vector2(18, 14)
 emitting = false
 amount = 20
 lifetime = 0.6

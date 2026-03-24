@@ -21,12 +21,14 @@ enum State { IDLE, WALK, JUMP, FALL, DEAD }
 
 @export_category("Toggle Functions")
 @export var double_jump: bool = false
+@export var sprite_flip_offset: float = 0.0  ## World-pixel shift applied when facing left to fix visual jump on turn
 
 var current_state: State = State.IDLE
 var jump_count: int = 0
 var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
 var is_coyote_jump: bool = false  # Coyote jumps don't consume a jump count
+var _base_sprite_x: float
 
 @onready var player_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var spawn_point: Marker2D = %SpawnPoint
@@ -37,6 +39,7 @@ var is_coyote_jump: bool = false  # Coyote jumps don't consume a jump count
 
 func _ready() -> void:
 	floor_snap_length = 4.0  # Keeps is_on_floor() stable when velocity is near zero
+	_base_sprite_x = player_sprite.position.x
 	jump_count = max_jump_count
 	enter_state(State.IDLE)
 
@@ -182,8 +185,10 @@ func apply_jump_cut() -> void:
 func flip_player() -> void:
 	if velocity.x < 0:
 		player_sprite.flip_h = true
+		player_sprite.position.x = _base_sprite_x + sprite_flip_offset
 	elif velocity.x > 0:
 		player_sprite.flip_h = false
+		player_sprite.position.x = _base_sprite_x
 
 # --------- TWEEN ANIMATIONS ---------- #
 
