@@ -416,6 +416,7 @@ position = Vector2(15, 18.25)
 shape = SubResource("RectangleShape2D_tvbjh")
 
 [node name="ParticleTrails" type="CPUParticles2D" parent="."]
+visible = false
 position = Vector2(13, 40)
 emitting = false
 amount = 20
