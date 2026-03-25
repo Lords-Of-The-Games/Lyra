@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cjanwm3sy2x37"]
+[gd_scene load_steps=16 format=3 uid="uid://cjanwm3sy2x37"]
 
 [ext_resource type="PackedScene" uid="uid://cyti38f0lagf2" path="res://Scenes/Entities/LevelFinishDoor.tscn" id="1_oqkjg"]
 [ext_resource type="PackedScene" uid="uid://bjb3dx2x4bocm" path="res://Scenes/Levels/Level_02.tscn" id="2_0ac5u"]
@@ -9,6 +9,8 @@
 [ext_resource type="Script" uid="uid://b0t0qt4ra2ivu" path="res://Scenes/Managers/game_ui.gd" id="6_66mfc"]
 [ext_resource type="Texture2D" uid="uid://k8ug03oatowk" path="res://Assets/platformPack_item008.png" id="7_j7jun"]
 [ext_resource type="FontFile" uid="uid://c3t0l351uoung" path="res://Assets/Fonts/Star Choco.ttf" id="8_gwcy2"]
+[ext_resource type="PackedScene" uid="uid://bo5dohiqfek7t" path="res://Scenes/Entities/Enemies/GroundEnemy.tscn" id="9_ground_enemy"]
+[ext_resource type="PackedScene" uid="uid://ih1f5178givx" path="res://Scenes/Entities/Enemies/FlyingEnemy.tscn" id="10_flying_enemy"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gs0qk"]
 texture = ExtResource("5_wqbaa")
@@ -72,13 +74,28 @@ editor_draw_drag_margin = true
 [node name="Coins" type="Node2D" parent="."]
 
 [node name="Coin" parent="Coins" instance=ExtResource("3_rrh80")]
+visible = false
 position = Vector2(576, 406)
 
 [node name="Coin2" parent="Coins" instance=ExtResource("3_rrh80")]
+visible = false
 position = Vector2(712, 353)
 
 [node name="Coin3" parent="Coins" instance=ExtResource("3_rrh80")]
+visible = false
 position = Vector2(844, 408)
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="GroundEnemy1" parent="Enemies" instance=ExtResource("9_ground_enemy")]
+position = Vector2(250, 431)
+
+[node name="GroundEnemy2" parent="Enemies" instance=ExtResource("9_ground_enemy")]
+position = Vector2(1050, 431)
+patrol_distance = 150.0
+
+[node name="FlyingEnemy1" parent="Enemies" instance=ExtResource("10_flying_enemy")]
+position = Vector2(459, 177)
 
 [node name="Level" type="Node2D" parent="."]
 
@@ -99,6 +116,7 @@ position = Vector2(174, 383)
 [node name="TutorialText" type="Node2D" parent="."]
 
 [node name="Movement" type="Label" parent="TutorialText"]
+visible = false
 offset_left = 264.0
 offset_top = 336.0
 offset_right = 542.0
@@ -112,6 +130,7 @@ text = "A & D To Move
 Spacebar To Jump"
 
 [node name="SetNextScene" type="Label" parent="TutorialText"]
+visible = false
 offset_left = 808.0
 offset_top = 256.0
 offset_right = 1239.0
@@ -135,6 +154,7 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -19.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("6_66mfc")

@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3 uid="uid://bo5dohiqfek7t"]
+
+[ext_resource type="Script" uid="uid://caqsd6fakmumf" path="res://Scenes/Entities/Enemies/ground_enemy.gd" id="1_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(42, 33)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_turn"]
+size = Vector2(15, 36)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
+size = Vector2(45, 36)
+
+[node name="GroundEnemy" type="CharacterBody2D" groups=["Enemy"]]
+collision_layer = 2
+script = ExtResource("1_script")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.85, 0.18, 0.15, 1)
+polygon = PackedVector2Array(-21, 15, -21, 0, -15, -12, -6, -18, 6, -18, 15, -12, 21, 0, 21, 15)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_body")
+
+[node name="LedgeCheck" type="RayCast2D" parent="."]
+target_position = Vector2(25, 40)
+
+[node name="TurnZone" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TurnZone"]
+position = Vector2(27, 0)
+shape = SubResource("RectangleShape2D_turn")
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+shape = SubResource("RectangleShape2D_hitbox")
+
+[connection signal="area_entered" from="TurnZone" to="." method="_on_turn_zone_area_entered"]
+[connection signal="body_entered" from="Hitbox" to="." method="_on_hitbox_body_entered"]
