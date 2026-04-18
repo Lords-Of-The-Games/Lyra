@@ -3,7 +3,7 @@ extends CharacterBody2D
 
 # --------- ENUMS ---------- #
 
-enum State { IDLE, WALK, JUMP, FALL, DEAD, ATTACK }
+enum State { IDLE, WALK, JUMP, FALL, DEAD }
 
 # --------- VARIABLES ---------- #
 
@@ -29,9 +29,11 @@ var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
 var is_coyote_jump: bool = false  # Coyote jumps don't consume a jump count
 var _base_sprite_x: float
-var _pre_attack_state: State = State.IDLE  # State to return to after attack
+var _base_overlay_x: float
+var _is_attacking: bool = false
 
 @onready var player_sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var attack_overlay: AnimatedSprite2D = $AttackOverlay
 @onready var spawn_point: Marker2D = %SpawnPoint
 @onready var particle_trails: CPUParticles2D = $ParticleTrails
 @onready var death_particles: CPUParticles2D = $DeathParticles
@@ -42,6 +44,7 @@ var _pre_attack_state: State = State.IDLE  # State to return to after attack
 func _ready() -> void:
 	floor_snap_length = 4.0  # Keeps is_on_floor() stable when velocity is near zero
 	_base_sprite_x = player_sprite.position.x
+	_base_overlay_x = attack_overlay.position.x
 	jump_count = max_jump_count
 	enter_state(State.IDLE)
 
@@ -49,6 +52,7 @@ func _physics_process(delta: float) -> void:
 	tick_timers(delta)
 	apply_gravity()
 	apply_jump_cut()
+	process_attack()
 	process_state_machine()
 	update_state()
 	flip_player()
@@ -67,17 +71,6 @@ func tick_timers(delta: float) -> void:
 
 func process_state_machine() -> void:
 	var jump_just := Input.is_action_just_pressed("Jump")
-	var attack_just := Input.is_action_just_pressed("Attack")
-
-	# Attack — can trigger from most states, takes priority
-	if attack_just and current_state != State.DEAD and current_state != State.ATTACK:
-		_pre_attack_state = current_state
-		transition_to(State.ATTACK)
-		return
-
-	# Don't process movement transitions during attack
-	if current_state == State.ATTACK:
-		return
 
 	# Coyote jump — grace window after walking off an edge (free jump, no count cost)
 	if current_state == State.FALL and jump_just and coyote_timer > 0.0:
@@ -146,9 +139,7 @@ func enter_state(state: State) -> void:
 			velocity.y = 0.0
 			particle_trails.emitting = true
 			player_sprite.play("Walk", 1.5)
-		State.JUMP:	
-			if not is_on_floor() and previous_state == State.ATTACK:
-				return
+		State.JUMP:
 			particle_trails.emitting = false
 			player_sprite.play("Jump")
 			velocity.y = -jump_force
@@ -163,10 +154,7 @@ func enter_state(state: State) -> void:
 		State.DEAD:
 			particle_trails.emitting = false
 			velocity = Vector2.ZERO
-		State.ATTACK:
-			particle_trails.emitting = false
-			player_sprite.play("Attack")
-			attack_hitbox.monitoring = true
+			stop_attack()
 
 func exit_state(from: State, to: State) -> void:
 	match from:
@@ -174,8 +162,6 @@ func exit_state(from: State, to: State) -> void:
 			# Only start coyote window when falling off an edge, not when jumping
 			if to == State.FALL:
 				coyote_timer = coyote_time
-		State.ATTACK:
-			attack_hitbox.monitoring = false
 		#State.FALL:
 			## Landing squash only when actually touching down, not on a double jump
 			#if is_on_floor():
@@ -188,11 +174,23 @@ func update_state() -> void:
 			velocity.x = 0
 		State.WALK, State.JUMP, State.FALL:
 			velocity.x = input_x * move_speed
-		State.ATTACK:
-			# Allow gravity while attacking in the air, but slow horizontal movement
-			velocity.x = input_x * move_speed * 0.3
 		State.DEAD:
 			velocity = Vector2.ZERO
+
+# --------- ATTACK OVERLAY ---------- #
+
+func process_attack() -> void:
+	if Input.is_action_just_pressed("Attack") and current_state != State.DEAD and not _is_attacking:
+		_is_attacking = true
+		attack_overlay.visible = true
+		attack_overlay.play("Attack-overlay")
+		attack_hitbox.monitoring = true
+
+func stop_attack() -> void:
+	_is_attacking = false
+	attack_overlay.visible = false
+	attack_overlay.stop()
+	attack_hitbox.monitoring = false
 
 # --------- CUSTOM FUNCTIONS ---------- #
 
@@ -208,15 +206,19 @@ func apply_jump_cut() -> void:
 			velocity.y *= jump_cut_multiplier
 
 func flip_player() -> void:
-	if current_state == State.ATTACK:
-		return  # Don't flip mid-attack
 	if velocity.x < 0:
 		player_sprite.flip_h = true
-		player_sprite.position.x = _base_sprite_x + sprite_flip_offset
+		attack_overlay.flip_h = true
+		var flipped_sprite_x := _base_sprite_x + sprite_flip_offset
+		player_sprite.position.x = flipped_sprite_x
+		# Mirror overlay: flip the offset relative to the sprite
+		attack_overlay.position.x = flipped_sprite_x - (_base_overlay_x - _base_sprite_x)
 		attack_hitbox.position.x = -abs(attack_hitbox.position.x)
 	elif velocity.x > 0:
 		player_sprite.flip_h = false
+		attack_overlay.flip_h = false
 		player_sprite.position.x = _base_sprite_x
+		attack_overlay.position.x = _base_overlay_x
 		attack_hitbox.position.x = abs(attack_hitbox.position.x)
 
 # --------- TWEEN ANIMATIONS ---------- #
@@ -255,20 +257,8 @@ func _on_collision_body_entered(_body: Node2D) -> void:
 		transition_to(State.DEAD)
 		#death_tween()
 
-func _on_animated_sprite_2d_animation_finished() -> void:
-	if current_state == State.ATTACK:
-		# Return to appropriate state after attack ends
-		var on_floor := is_on_floor()
-		var input_x := Input.get_axis("Left", "Right")
-		if not on_floor:
-			if velocity.y > 0:
-				transition_to(State.FALL)
-			else:
-				transition_to(State.JUMP)
-		elif abs(input_x) > 0:
-			transition_to(State.WALK)
-		else:
-			transition_to(State.IDLE)
+func _on_attack_overlay_animation_finished() -> void:
+	stop_attack()
 
 func _on_attack_hitbox_body_entered(body: Node2D) -> void:
 	if body is BaseEnemy:
