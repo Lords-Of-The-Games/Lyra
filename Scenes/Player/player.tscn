@@ -1,8 +1,18 @@
-[gd_scene load_steps=56 format=3 uid="uid://w7m6tehvvy3g"]
+[gd_scene load_steps=67 format=3 uid="uid://w7m6tehvvy3g"]
 
 [ext_resource type="Script" uid="uid://dy51oxqy2ug5h" path="res://Scenes/Player/player.gd" id="1_qt7d6"]
 [ext_resource type="Texture2D" uid="uid://cq5xqybjujapy" path="res://Assets/Spritesheet/lyraPack_character.png" id="2_mtuoh"]
 [ext_resource type="Texture2D" uid="uid://bupj5qe0exwtq" path="res://Assets/Textures/CloudTexture.png" id="3_8vxmb"]
+[ext_resource type="Texture2D" uid="uid://dwy4ngjlkm0fu" path="res://Assets/Spritesheet/attack animation/attack 1.png" id="4_atk01"]
+[ext_resource type="Texture2D" uid="uid://b7yh742dhv3h1" path="res://Assets/Spritesheet/attack animation/attack 2.png" id="5_atk02"]
+[ext_resource type="Texture2D" uid="uid://bagbb4of7mv8x" path="res://Assets/Spritesheet/attack animation/attack 3.png" id="6_atk03"]
+[ext_resource type="Texture2D" uid="uid://cmx74ns5oji1j" path="res://Assets/Spritesheet/attack animation/attack 4.png" id="7_atk04"]
+[ext_resource type="Texture2D" uid="uid://cl4cv5v8n8h84" path="res://Assets/Spritesheet/attack animation/attack 5.png" id="8_atk05"]
+[ext_resource type="Texture2D" uid="uid://d2hnqu7sgrsa3" path="res://Assets/Spritesheet/attack animation/attack 6.png" id="9_atk06"]
+[ext_resource type="Texture2D" uid="uid://b6qgggbjxj0l" path="res://Assets/Spritesheet/attack animation/attack 7.png" id="10_atk07"]
+[ext_resource type="Texture2D" uid="uid://ce6gkrb5c07iw" path="res://Assets/Spritesheet/attack animation/attack 8.png" id="11_atk08"]
+[ext_resource type="Texture2D" uid="uid://1ljhc8h5irgj" path="res://Assets/Spritesheet/attack animation/attack 9.png" id="12_atk09"]
+[ext_resource type="Texture2D" uid="uid://d2l0oo3b0tcln" path="res://Assets/Spritesheet/attack animation/attack 10.png" id="13_atk10"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_htcer"]
 atlas = ExtResource("2_mtuoh")
@@ -194,6 +204,41 @@ region = Rect2(11250, 1500, 750, 750)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_4nss6"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_atk01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_atk02")
+}, {
+"duration": 0.8,
+"texture": ExtResource("6_atk03")
+}, {
+"duration": 0.6,
+"texture": ExtResource("7_atk04")
+}, {
+"duration": 0.4,
+"texture": ExtResource("8_atk05")
+}, {
+"duration": 0.1,
+"texture": ExtResource("9_atk06")
+}, {
+"duration": 0.1,
+"texture": ExtResource("10_atk07")
+}, {
+"duration": 0.1,
+"texture": ExtResource("11_atk08")
+}, {
+"duration": 0.1,
+"texture": ExtResource("12_atk09")
+}, {
+"duration": 0.1,
+"texture": ExtResource("13_atk10")
+}],
+"loop": false,
+"name": &"Attack",
+"speed": 25.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_htcer")
@@ -395,6 +440,9 @@ point_count = 3
 offsets = PackedFloat32Array(0.25, 1)
 colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_atkbx"]
+size = Vector2(40, 40)
+
 [node name="Player" type="CharacterBody2D" groups=["Player"]]
 script = ExtResource("1_qt7d6")
 sprite_flip_offset = 50.0
@@ -403,7 +451,7 @@ sprite_flip_offset = 50.0
 position = Vector2(-2, -3)
 scale = Vector2(0.128, 0.128)
 sprite_frames = SubResource("SpriteFrames_4nss6")
-animation = &"Idle"
+animation = &"Attack"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(18, 16)
@@ -454,4 +502,16 @@ scale_amount_max = 30.0
 scale_amount_curve = SubResource("Curve_m2jh0")
 color_ramp = SubResource("Gradient_3gc37")
 
+[node name="AttackHitbox" type="Area2D" parent="."]
+position = Vector2(40, 15)
+collision_layer = 0
+collision_mask = 2
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("RectangleShape2D_atkbx")
+
+[connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]
 [connection signal="body_entered" from="Collision" to="." method="_on_collision_body_entered"]
+[connection signal="body_entered" from="AttackHitbox" to="." method="_on_attack_hitbox_body_entered"]

@@ -1,14 +1,13 @@
 [gd_scene load_steps=4 format=3 uid="uid://cyti38f0lagf2"]
 
 [ext_resource type="Script" uid="uid://4st3awub3xg2" path="res://Scenes/Entities/level_finish_door.gd" id="1_bto8y"]
-[ext_resource type="Texture2D" uid="uid://clnok6h0axegl" path="res://Assets/platformPack_tile048.png" id="2_v64bf"]
+[ext_resource type="Texture2D" uid="uid://qmjbbtm1xxmd" path="res://Assets/platformPack_tile048.png" id="2_v64bf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_34g1n"]
 size = Vector2(66, 80)
 
 [node name="LevelFinishDoor" type="Area2D"]
 collision_layer = 4
-collision_mask = 1
 script = ExtResource("1_bto8y")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
